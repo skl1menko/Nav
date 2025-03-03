@@ -12,29 +12,43 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.nav.model.Cocktail
-
 @Composable
 fun DrinkScreen(
     isAlcoholic: Boolean,
     viewModel: DrinkViewModel = viewModel()
 ) {
-    val cocktails by if (isAlcoholic) {
-        viewModel.alcoholCocktails.collectAsState()
+    var searchQuery by remember { mutableStateOf("") }
+    val cocktails by if (searchQuery.isEmpty()) {
+        if (isAlcoholic) viewModel.alcoholCocktails.collectAsState()
+        else viewModel.nonAlcoholCocktails.collectAsState()
     } else {
-        viewModel.nonAlcoholCocktails.collectAsState()
+        viewModel.searchResults.collectAsState()
     }
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
-        modifier = Modifier.fillMaxSize().padding(8.dp),
-        contentPadding = PaddingValues(8.dp)
-    ) {
-        items(cocktails) { cocktail ->
-            CocktailItem(cocktail)
+    Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = {
+                searchQuery = it
+                viewModel.searchCocktails(it)
+            },
+            label = { Text("Search Cocktail") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            items(cocktails) { cocktail ->
+                CocktailItem(cocktail)
+            }
         }
     }
 }
-
 @Composable
 fun CocktailItem(cocktail: Cocktail) {
     Card(
@@ -62,3 +76,4 @@ fun CocktailItem(cocktail: Cocktail) {
         }
     }
 }
+

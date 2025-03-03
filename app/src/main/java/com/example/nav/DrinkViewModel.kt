@@ -15,6 +15,9 @@ class DrinkViewModel : ViewModel() {
     private val _nonAlcoholCocktails = MutableStateFlow<List<Cocktail>>(emptyList())
     val nonAlcoholCocktails: StateFlow<List<Cocktail>> = _nonAlcoholCocktails.asStateFlow()
 
+    private val _searchResults = MutableStateFlow<List<Cocktail>>(emptyList())
+    val searchResults: StateFlow<List<Cocktail>> = _searchResults.asStateFlow()
+
     init {
         fetchAlcoholicCocktails()
         fetchNonAlcoholicCocktails()
@@ -41,4 +44,16 @@ class DrinkViewModel : ViewModel() {
             }
         }
     }
+
+    fun searchCocktails(name: String) {
+        viewModelScope.launch {
+            try {
+                val response = CocktailAPI.retrofitService.searchCocktails(name)
+                _searchResults.value = response.drinks ?: emptyList()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 }
+
