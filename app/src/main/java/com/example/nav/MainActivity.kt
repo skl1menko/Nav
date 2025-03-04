@@ -21,14 +21,13 @@ enum class Tab(val label: String, val icon: Int) {
 
 class MainActivity : ComponentActivity() {
     private val mainViewModel: MainViewModel by viewModels()
-    private val DrinkViewModel: DrinkViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             NavTheme {
-                MainScreen(mainViewModel,DrinkViewModel)
+                MainScreen(mainViewModel)
             }
         }
     }
@@ -37,8 +36,7 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    mainViewModel: MainViewModel,
-    drinkViewModel: DrinkViewModel
+    mainViewModel: MainViewModel
 ) {
     val currentTab by mainViewModel.currentTab.collectAsState()
 
@@ -58,11 +56,11 @@ fun MainScreen(
         }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
-            TopAppBar(title = { Text(text = currentTab.label) })
+
 
             when (currentTab) {
-                Tab.Alc -> DrinkScreen(isAlcoholic = true, viewModel = drinkViewModel)
-                Tab.No_Alc -> DrinkScreen(isAlcoholic = false, viewModel = drinkViewModel)
+                Tab.Alc -> AlcoholScreen(viewModel = viewModel<AlcoholViewModel>())
+                Tab.No_Alc -> NonAlcoholScreen(viewModel = viewModel<NonAlcoholViewModel>())
             }
         }
     }

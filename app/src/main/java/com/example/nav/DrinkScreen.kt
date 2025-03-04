@@ -9,23 +9,31 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.nav.model.Cocktail
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DrinkScreen(
-    isAlcoholic: Boolean,
-    viewModel: DrinkViewModel = viewModel()
-) {
+fun DrinkScreen(viewModel: MainViewModel) {
     var searchQuery by remember { mutableStateOf("") }
     val cocktails by if (searchQuery.isEmpty()) {
-        if (isAlcoholic) viewModel.alcoholCocktails.collectAsState()
-        else viewModel.nonAlcoholCocktails.collectAsState()
+        viewModel.cocktails.collectAsState()
     } else {
         viewModel.searchResults.collectAsState()
     }
 
+    // Визначаємо заголовок в залежності від типу напоїв
+    val title = if (viewModel is AlcoholViewModel) {
+        "Alcoholic Drinks"
+    } else {
+        "Non-Alcoholic Drinks"
+    }
+
     Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+        TopAppBar(
+            title = { Text(title) },
+            modifier = Modifier.fillMaxWidth()
+        )
+
         OutlinedTextField(
             value = searchQuery,
             onValueChange = {
@@ -49,6 +57,7 @@ fun DrinkScreen(
         }
     }
 }
+
 @Composable
 fun CocktailItem(cocktail: Cocktail) {
     Card(
@@ -76,4 +85,3 @@ fun CocktailItem(cocktail: Cocktail) {
         }
     }
 }
-
